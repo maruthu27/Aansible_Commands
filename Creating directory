@@ -8,6 +8,7 @@
     with_items:
       - '/home/ansible/maruthu'
       - '/home/ansible/pandian'
+    mode: '0755'
   - name: creating multiple files
     file:
       path: "{{ item }}"
