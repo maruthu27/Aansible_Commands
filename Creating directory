@@ -8,7 +8,6 @@
     with_items:
       - '/home/ansible/maruthu'
       - '/home/ansible/pandian'
-    mode: '0755'
   - name: creating multiple files
     file:
       path: "{{ item }}"
@@ -17,11 +16,18 @@
       - '/home/ansible/maruthu/test1.txt'
       - '/home/ansible/maruthu/test2.txt'
       - '/home/ansible/maruthu/test3.txt'
-  - name: Remove file
-    file:
-      path: /home/ansible/maruthu/test1.txt
-      state: absent
   - name: copy file
     copy:
       src: /home/ansible/maruthu/test2.txt
       dest: /home/ansible/pandian/
+  - name: Ansible delete file glob
+    find:
+      paths: /home/Ansible/maruthu/
+      patterns: "*.txt"
+      use_regex: true
+    register: files_to_delete
+  - name: Ansible remove file glob
+    file:
+      path: "{{ item.path }}"
+      state: absent
+    with_items: "{{ files_to_delete.files }}"
