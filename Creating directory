@@ -22,12 +22,13 @@
       dest: /home/ansible/pandian/
   - name: Ansible delete file glob
     find:
-      paths: /home/Ansible/maruthu/
-      patterns: "*.txt"
-      use_regex: true
+      paths: /home/ansible/maruthu
+      patterns: '*.txt'
+      file_type: file
     register: files_to_delete
   - name: Ansible remove file glob
     file:
       path: "{{ item.path }}"
       state: absent
-    with_items: "{{ files_to_delete.files }}"
+    with_items:
+      - '{{ files_to_delete.files  }}'
