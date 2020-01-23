@@ -20,6 +20,10 @@
     copy:
       src: /home/ansible/maruthu/test2.txt
       dest: /home/ansible/pandian/
+  - name: Archive the file
+    archive:
+      path: /home/ansible/maruthu
+      dest: /home/ansible/pandian/maruthu.tar
   - name: Ansible delete file glob
     find:
       paths: /home/ansible/maruthu
