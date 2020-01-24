@@ -1,0 +1,44 @@
+---
+- hosts: localhost
+  become: true
+  
+  tasks:
+    
+    - name: Update and upgrade system first
+      apt:
+        upgrade: yes
+        update_cache: yes
+        
+    - name: Install required pkg to allow apt to use repository over https
+      apt: name={{ item }} state=present
+      with_items:
+        - apt-transport-https
+        - ca-certificates
+        - curl
+        - gnupg-agent
+        - software-properties-common
+        
+    - name: Adding key
+      apt_key:
+        url: https://download.docker.com/linux/ubuntu/gpg
+        validate_certs: yes
+        state: present
+        
+    
+    - name: add repository
+      apt_repository:
+        repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable
+        state: present
+        update_cache: yes
+        
+    - name: docker installation
+      apt: name={{ item }} state=present
+      with_items:
+        - docker-ce
+        - docker-ce-cli
+        - containerd.io
+        
+    - user:
+        name: $USER
+        comment: $USER added
+        group: docker
