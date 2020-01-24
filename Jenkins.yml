@@ -1,0 +1,48 @@
+---
+- hosts: localhost
+  gather_facts: yes
+  #  connection: local
+  #  remote_user: root
+  become: yes
+  
+  vars_prompt:
+    - name: java-pkg-version
+      prompt: Enter java package version
+      private: no
+  
+  tasks:
+    - name: Update system
+      apt:
+        upgrade: yes
+        update_cache: yes
+
+    - name: Install java
+      apt:
+        name: openjdk-{{ java-pkg-version|8 }}-jdk
+        state: present
+
+    - apt_key:
+        state: present
+        url: https://pkg.jenkins.io/debian/jenkins.io.key
+        validate_certs: no
+
+    - name: Wait for 10 sec
+      pause:
+        seconds: 10
+
+    - name: adding repo
+      command: sudo sh -c 'echo deb http://pkg.jenkins.io/debian-stable binary/ > /etc/apt/sources.list.d/jenkins.list'
+      update_cache: yes
+
+    - name: install jenkins
+      apt:
+        name: jenkins
+        state: present
+
+    - name: Ensure jenkins is started
+      service:
+        name: jenkins
+        state: started
+
+    - name: Administration password
+      command: cat /var/lib/jenkins/secrets/initialAdminPassword
