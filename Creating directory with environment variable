@@ -1,0 +1,20 @@
+This is play book
+
+---
+- hosts: own
+  tasks:
+  - name: ansible create multiple directory example
+    file:
+      path: "{{ item }}"
+      state: directory
+    with_items:
+      - "{{ mydir }}"
+      - "{{ dir }}"
+
+need to create a yml file with group name
+
+own.yml
+ansible@ip-172-31-88-32:/etc/ansible/group_vars$ cat own.yml
+---
+mydir: "/home/ansible/maruthu"
+dir: "/home/ansible/pandian"
