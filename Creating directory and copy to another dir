@@ -1,0 +1,38 @@
+---
+- hosts: localhost
+  tasks:
+  - name: ansible create multiple directory example
+    file:
+      path: "{{ item }}"
+      state: directory
+    with_items:
+      - "{{ mydir }}"
+      - "{{ dir }}"
+  - name: creating multiple files
+    file:
+      path: "{{ item }}"
+      state: touch
+    with_items:
+      - '{{ mydir }}/test1.txt'
+      - '{{ mydir }}/test2.txt'
+      - '{{ mydir }}/test3.txt'
+  - name: copy file
+    copy:
+      src: "{{ mydir }}/test2.txt"
+      dest: "{{ dir }}"
+  - name: Archive the file
+    archive:
+      path: "{{ mydir }}/test1.txt"
+      dest: "{{ dir }}/test.tar"
+  - name: Ansible delete file glob
+    find:
+      path: "{{ mydir }}"
+      patterns: '*.txt'
+      file_type: file
+    register: files_to_delete
+  - name: Ansible remove file glob
+    file:
+      path: "{{ item.path }}"
+      state: absent
+    with_items:
+      - '{{ files_to_delete.files  }}'
