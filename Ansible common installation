@@ -1,0 +1,22 @@
+Install python and python-pip
+$ yum install python
+$ yum install python-pip
+
+Install Ansible by using pip
+$ pip install ansible
+
+To check the ansible version
+$ ansible --version
+
+To create a user for ansible
+
+$ useradd ansible
+$ passwd ansible
+
+echo "ansible ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
+
+create a ssh key to connect ansible user
+$ ssh-keygen
+
+$ ssh-copy-id localhost
+
