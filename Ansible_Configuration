@@ -1,0 +1,349 @@
+Install on CentOS7 client1 & Client2
+
+#yum install epel*
+
+#yum update
+
+#yum install ansible
+
+ 
+
+Do the configuration setting to all the servers
+
+#vim /etc/hosts              
+
+172.24.1.100      master
+
+172.24.1.101      client1
+
+172.24.1.102      client2
+
+ 
+
+Ansible configuration File:
+
+#vim /etc/ansible/ansible.cfg
+
+Line: 62
+
+host_key_checking = False
+
+ 
+
+ 
+
+Create host base inventory
+
+Static Inventory on Server
+
+#mv /etc/ansible/hosts /tmp/
+
+#vim /etc/ansible/hosts
+
+      master
+
+client1
+
+client2
+
+ 
+
+#ansible all --list-hosts
+
+ 
+
+Add a host into inventory
+
+#ansible <hostname/groupname> -m <module><action><authentications>
+
+ 
+
+#ansible master –m ping –u root –k
+
+#ansible client1 –m ping –u root –k
+
+#ansible client2 –m ping –u root –k
+
+ 
+
+Forming inventory Group
+
+#vim /etc/ansible/hosts
+
+      master
+
+client1
+
+client2
+
+      [lb] 
+
+      Master
+
+      [app]
+
+      client1
+
+      client2
+
+ 
+
+Add a group into inventory
+
+#ansible lb -m  ping -u root -k
+
+#ansible app -m  ping -u root -k
+
+#ansible db -m  ping -u root –k
+
+ 
+
+Inventory variable:
+
+Ø  Host base inventory variable
+
+Ø  Group base inventory variable
+
+ 
+
+Create Host based inventory variables
+
+#vim /etc/ansible/hosts
+
+      master      ansible_user=root
+
+client1
+
+client2
+
+#ansible master –m ping -k
+
+ 
+
+ 
+
+root@ansiblemaster:~# ssh client1
+
+[root@ansibleclient1 ~]# useradd user1
+
+[root@ansibleclient1 ~]# passwd user1
+
+[root@ansibleclient1 ~]# gpasswd -a user1 wheel
+
+Adding user user1 to group wheel
+
+[root@ansibleclient1 ~]# su - user1
+
+[user1@ansibleclient1 ~]$ sudo -l
+
+[user1@ansibleclient1 ~]$
+
+ 
+
+#vim /etc/ansible/hosts
+
+      master     
+
+client1 ansible_user=user1
+
+client2
+
+#ansible client –m ping -k
+
+ 
+
+#vim /etc/ansible/hosts
+
+      master     
+
+client1 ansible_user=root ansible_ssh_pass=redhat123
+
+client2
+
+#ansible client1 –m ping
+
+ 
+
+Create Host based inventory variables
+
+#vim /etc/ansible/hosts
+
+[app]
+
+      client1
+
+      client2
+
+ 
+
+[app:vars]
+
+ansible_user=root
+
+ansible_ssh_pass=redhat123
+
+ 
+
+#ansible app –m ping
+
+ 
+
+Forming’s multiple group of Group
+
+vim /etc/ansible/hosts
+
+      master
+
+client1
+
+client2
+
+     
+
+[lb] 
+
+      Master
+
+     
+
+[app]
+
+      client1
+
+client2
+
+ 
+
+[bs:children]
+
+lb
+
+app
+
+ 
+
+Assign - Group variable
+
+[bs:vars]  
+
+ansible_user=root
+
+ansible_ssh_pass=redhat123
+
+ 
+
+#ansible bs –m ping
+
+ 
+
+ 
+
+Assign host based Port Variable file for SSH.
+
+#vim /etc/ansible/hosts
+
+             client2 ansible_port=2222   
+
+#ansible client2 -m ping -u root –k
+
+                             
+
+Create host Variable
+
+#cd /etc/ansible
+
+#mkdir host_vars
+
+#cd host_vars
+
+ 
+
+#vim client2
+
+ansible_user: root
+
+ansible_ssh_pass: redhat123
+
+ansible_port: 2222
+
+ 
+
+#ansible client2 –m ping
+
+ 
+
+ 
+
+Create Group based inventory variable
+
+#cd /etc/ansible
+
+#mkdir group_vars
+
+#cd group_vars
+
+#vim bs
+
+ansible_user: root
+
+ansible_ssh_pass: redhat123
+
+ 
+
+#ansible bs –m ping
+
+ 
+
+#ansible client1 -m shell -a "df -h" -u root –k
+
+#ansible client1 -m shell -a "cat /etc/passwd" -u root -k
+
+ 
+
+ 
+
+Copy a file from master to client machine
+
+#vim one
+
+    HELLO
+
+#ansible client1 –m copy –a “src=/root/one dest=/tmp/” –u root  -k
+
+#ansible client1 -m shell -a "cat /tmp/one" -u root –k
+
+ 
+
+Copy a file from master and backup old file on client machine
+
+#vim one
+
+    HELLO! How are You
+
+ 
+
+#ansible client1 –m copy –a “src=/root/one dest=/tmp backup=yes” –u root -k
+
+#ansible client2 -m shell -a "cat /tmp/one" -u root –k
+
+ 
+
+Copy the file within remote host system
+
+#ansible client1 –m copy –a “src=/root/one dest=/tmp/  remote_src=yes” –u root  -k
+
+#ansible client1 -m shell -a "cat /tmp/one" -u root –k
+
+ 
+
+Install a package on client1
+
+ansible client1 -m yum -a "name=httpd state=latest update_cache=yes" -u root -k
+
+ 
+
+Install package using sudo privileged user
+
+#ansible client1 -m yum -a "name=httpd state=latest update_cache=yes" -u user1 –become-method=sudo –become-user=user1 –k -K
+
+ 
